@@ -16,7 +16,7 @@ using namespace std;
 
 // function prototypes
 void insert(int* &tree, int treeSize, int i);
-void print(int* tree, int i, int numTabs);
+void print(int* tree, int i, int numTabs, int treeSize);
 void remove(int* &tree, int i);
 
 int main()
@@ -55,14 +55,6 @@ int main()
 	  if (strcmp(input, "file") == 0)
 	    {
 	      
-	      // read in from a file
-	      int fileValues[treeSize];
-	      for (int i = 0; i < treeSize; i++)
-		{
-		  // initialize everything to zero
-		  tree[i] = 0;
-		}
-
 	      int newnum = 0;
 
 	      // read in the file
@@ -72,22 +64,27 @@ int main()
 	      inFile.open(input);
 
 	      int i = 1;
+
+	      // read in separated by spaces
 	      while (inFile >> newnum && i < treeSize)
 		{
 		  tree[i] = newnum;
 		  insert(tree, treeSize, i);
 		  i++;
+		  insertIndex++;
 		}
-	      
-	      for (int i = 0; i < treeSize; i++)
+
+	      // original test to make sure the file was read
+	      /* for (int i = 0; i < treeSize; i++)
 	      {
 	        cout << tree[i] << endl;
-	      }
+		} */
 	    }
+	  
+	  // enter the file manually
 	  else if (strcmp(input, "manual") == 0)
 	    {
 	      // manual read-in
-	      //	  int count = 0;
 	      bool wantToQuit = false;      
 	      
 	      while ((count < treeSize - 1) && !wantToQuit)
@@ -112,7 +109,7 @@ int main()
 		      insertIndex++;
 
 		      cout << "New tree: " << endl;
-		      print(tree, 1, 0); // visualize the current tree
+		      print(tree, 1, 0, treeSize); // visualize the current tree
 		      cout << "" << endl;
 
 		      count++;
@@ -137,13 +134,13 @@ int main()
 	  // reorganize the tree back to a max heap
 	  remove(tree, rootIndex);
 	  cout << "New tree: " << endl;
-	  print(tree, 1, 0);
+	  print(tree, 1, 0, treeSize);
 	  cout << "" << endl;
 	}
       else if (strcmp(input, "remove all") == 0)
 	{
 	  cout << "Removing all values..." << endl;
-
+	  cout << insertIndex << endl;
 	  // basically call remove repeatedly until insertIndex = 1
 	  while (insertIndex != 1)
 	    {
@@ -160,7 +157,7 @@ int main()
 	      remove(tree, rootIndex);
 
 	      cout << "Root removed. New tree: " << endl;
-	      print(tree, 1, 0);
+	      print(tree, 1, 0, treeSize);
 	      cout << "" << endl;
 	    }
 
@@ -170,7 +167,7 @@ int main()
       else if (strcmp(input, "print") == 0)
 	{
 	  // print the table, starting from index 1, # of indents starts at 0
-	  print(tree, 1, 0);
+	  print(tree, 1, 0, treeSize);
 	  cout << "" << endl;
 	}
       else if (strcmp(input, "quit") == 0)
@@ -178,7 +175,9 @@ int main()
 	  editing = false;
 	}
     }
+  
 return 0;
+ 
 }
 
 /**
@@ -189,19 +188,9 @@ return 0;
  */
 void insert(int* &tree, int treeSize,  int i)
 {
-  bool fullTree = true;
-  for (int i = 1; i < treeSize - 1; i++)
-    {
-      if (tree[i] == 0)
-	{
-	  fullTree = false;
-	}
-    }
   
-  cout << "added value: " << tree[i] << endl;
+  // cout << "added value: " << tree[i] << endl;
 
-  if ((i * 2) < treeSize && (i * 2 + 1) < treeSize && i < treeSize)
-    {
   // check if your parent (floor(i/2), with i as the current index) < current
   int parent = tree[(int)(i/2)];
   if (parent !=0 && parent < tree[i])
@@ -216,48 +205,48 @@ void insert(int* &tree, int treeSize,  int i)
       insert(tree, treeSize, i);
 
     }
-  else
-    {
-      cout << "we are here." << endl;
-    }
-    }
 
 }
 
+/**
+ * This function removes the root of the tree and uses the next
+ * largest element of the root. 
+ * @param tree | this is the array
+ * @param i | index
+ */
 void remove(int* &tree, int i)
 {
 
-  int treeSize = 101;
-  if (tree[i] != 0 && (2 * i) < treeSize)
-    {
-      cout << "entered" << endl;
-      // check the children and swap with the larger one
-      if (tree[2 * i] != 0 &&
-	  tree[i] < tree[2 * i] &&
-	  tree[2 * i] >= tree[2 * i + 1])
-      {
-	// the left child is larger than the parent and the right child
-	// swap the parent and the left child
-	int temp = tree[2 * i];
-	tree[2 * i] = tree[i];
-	tree[i] = temp;
+  // cout << "entered" << endl;
+  
+  // check the children and swap with the larger one
+  if (tree[2 * i] != 0 &&
+      tree[i] < tree[2 * i] &&
+      tree[2 * i] >= tree[2 * i + 1])
+  {
+    // the left child is larger than the parent and the right child
+    // swap the parent and the left child
+    int temp = tree[2 * i];
+    tree[2 * i] = tree[i];
+    tree[i] = temp;
 
-	// move down the tree
-	remove(tree, (i * 2));
-      }
-      else if (tree[2 * i + 1] != 0 &&
-	  tree[i] < tree[2 * i + 1] &&
-	  tree[2 * i + 1] >= tree[2 * i])
-      {
-	// the right child is larger than the left child             
-	// swap the parent and the left child                                       
-	int temp = tree[2 * i + 1];
-	tree[2 * i + 1] = tree[i];
-	tree[i] = temp;
+    // move down the tree
+    remove(tree, (i * 2));
+  }
+  
+  else if (tree[2 * i + 1] != 0 &&
+      tree[i] < tree[2 * i + 1] &&
+      tree[2 * i + 1] >= tree[2 * i])
+  {
+    // the right child is larger than the left child             
+    // swap the parent and the left child                                       
+    int temp = tree[2 * i + 1];
+    tree[2 * i + 1] = tree[i];
+    tree[i] = temp;
 
-	remove(tree, (i * 2 + 1));
-      }
-    }
+    remove(tree, (i * 2 + 1));
+  }
+
 }
 
 /**
@@ -266,7 +255,7 @@ void remove(int* &tree, int i)
  * @param i | this is the current index we are working with
  * @param numTabs | this will keep track of how many indents to make
  */
-void print(int* tree, int i, int numTabs)
+void print(int* tree, int i, int numTabs, int treeSize)
 {
   if (tree[i] == 0)
     {
@@ -276,9 +265,12 @@ void print(int* tree, int i, int numTabs)
   // else if the tree is not empty
   numTabs += 1; // indent one more in
 
-  // recursively move down by moving to the right child each time
-  print(tree, (2 * i + 1), numTabs);
-
+  if ((2 * i + 1) < treeSize)
+    {
+      // recursively move down by moving to the right child each time
+      print(tree, (2 * i + 1), numTabs, treeSize);
+    }
+  
   // IMPORTANT NOTE!
   // once we reach the last child (the leaf), we can no longer move down
   // to another child. This means that when we call the print function
@@ -293,10 +285,13 @@ void print(int* tree, int i, int numTabs)
       // indent the number of times as stated by numTabs
       cout << "\t";
     }
+  
   cout << tree[i] << "\n"; // print value here
 
-  print(tree, (2 * i), numTabs); // same idea for the left child
-  
+  if ((2 * i) < treeSize)
+    {
+      print(tree, (2 * i), numTabs, treeSize); // same idea for the left child
+    }
 
   
 }
